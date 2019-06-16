@@ -1,0 +1,75 @@
+
+* crashes using filter-map for large list
+
+#+BEGIN_SRC
+$ uim-sh -e '(filter-map (lambda (x) #f) (make-list 22000 1))'
+()
+$ uim-sh -e '(filter-map (lambda (x) #f) (make-list 23000 1))'
+()
+$ uim-sh -e '(filter-map (lambda (x) #f) (make-list 24000 1))'
+Segmentation fault
+$ uim-sh -e '(filter-map (lambda (x) #f) (make-list 25000 1))'
+Segmentation fault
+#+END_SRC
+
+* crashes using filter for large list
+
+#+BEGIN_SRC
+$ uim-sh -e '(list? (filter (lambda (x) #f) (make-list 22000 1)))'
+#t
+$ uim-sh -e '(list? (filter (lambda (x) #f) (make-list 23000 1)))'
+#t
+$ uim-sh -e '(list? (filter (lambda (x) #f) (make-list 24000 1)))'
+#t
+$ uim-sh -e '(list? (filter (lambda (x) #f) (make-list 25000 1)))'
+#t
+$ uim-sh -e '(list? (filter (lambda (x) #t) (make-list 22000 1)))'
+#t
+$ uim-sh -e '(list? (filter (lambda (x) #t) (make-list 23000 1)))'
+#t
+$ uim-sh -e '(list? (filter (lambda (x) #t) (make-list 24000 1)))'
+Segmentation fault
+$ uim-sh -e '(list? (filter (lambda (x) #t) (make-list 25000 1)))'
+Segmentation fault
+#+END_SRC
+
+* debug message
+
+(uim-notify-info "info")
+(uim-notify-fatal "fatal")
+
+(require-extension (srfi 28)) or (require-extension (srfi 48))
+https://srfi.schemers.org/srfi-28/srfi-28.html
+https://srfi.schemers.org/srfi-48/srfi-48.html
+(uim-notify-info (format "~s" OBJECT))
+
+* generic-register-im
+
+#+BEGIN_SRC
+(require "generic.scm")
+
+(define MODULE-init-handler
+  (lambda (id im arg)
+    (generic-context-new id im ascii-rule #f)))
+
+(generic-register-im
+ 'MODULE
+ ""
+ "UTF-8"
+ (N_ "module test label")
+ (N_ "module test description")
+ MODULE-init-handler)
+#+END_SRC
+
+
+register module
+
+#+BEGIN_SRC
+# uim-module-manager --register MODULE
+#+END_SRC
+
+unregister module
+
+#+BEGIN_SRC
+# uim-module-manager --unregister MODULE
+#+END_SRC

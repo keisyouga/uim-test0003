@@ -1,0 +1,75 @@
+
+* what is this?
+
+this is my study of [[https://github.com/uim/uim][uim]] module, input japanese text kana and kanji.
+
+it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input kanji, and support wildcard "*", "?".
+
+* requirement
+
+uim 1.8.6
+
+* install
+
+- copy *.scm to ~/.uim.d/plugin/
+- run following command
+
+#+BEGIN_SRC
+$ uim-module-manager --register test0003 --path ~/.uim.d/plugin
+#+END_SRC
+
+* how to use?
+
+- start in console
+#+BEGIN_SRC
+$ uim-fep -u test0003
+#+END_SRC
+
+- start in x
+#+BEGIN_SRC
+$ uim-xim --engin=test0003
+#+END_SRC
+
+- default key bindings
+
+| key        | command                 |
+|------------+-------------------------|
+| space      | commit                  |
+| alt-c      | toggle candidate window |
+| alt-a      | toggle auto commit      |
+| alt-w      | toggle wildcard         |
+| alt-p      | toggle prediction       |
+| alt-1 / f6 | switch to rule1         |
+| alt-2 / f7 | switch to rule2         |
+| alt-3 / f8 | switch to rule3         |
+| alt-4      | switch to rule4         |
+| ...        | ...    to               |
+| alt-9      | switch to rule9         |
+
+* config
+
+edit ~/.uim
+
+#+BEGIN_SRC scheme
+;; example setting
+;; bind switch rule1 to F1
+(define-key test0003-switch-rule1-key? "F1")
+;; use only cangjie5 rule
+(define my-rule1-setting
+  (list
+   '(label . c5)
+   '(autocommit . #f)
+   '(prediction . #t)
+   '(wildcard . #t)
+   (cons 'rulefile "/path/to/cangjie5-rule.data.scm")
+   ))
+(define test0003-rule-list (list my-rule1-setting))
+
+#+END_SRC
+
+* issue
+
+- setting with uim-pref-* does not work.
+- "*" in first character with large rule takes long time.
+- you can not select candidate with numeric key.
+- project name.
