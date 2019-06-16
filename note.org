@@ -75,5 +75,8 @@ unregister module
 #+END_SRC
 
 * emacs setting
+
+#+BEGIN_SRC emacs-lisp
 (global-set-key [f12] (lambda () (interactive) (shell-command "tmux neww uim-fep -u test0003")))
 (setq scheme-program-name "uim-sh")
+#+END_SRC
