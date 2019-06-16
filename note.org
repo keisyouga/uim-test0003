@@ -73,3 +73,7 @@ unregister module
 #+BEGIN_SRC
 # uim-module-manager --unregister MODULE
 #+END_SRC
+
+* emacs setting
+(global-set-key [f12] (lambda () (interactive) (shell-command "tmux neww uim-fep -u test0003")))
+(setq scheme-program-name "uim-sh")
