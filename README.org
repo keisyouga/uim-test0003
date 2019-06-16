@@ -27,7 +27,7 @@ $ uim-fep -u test0003
 
 - start in x
 #+BEGIN_SRC
-$ uim-xim --engin=test0003
+$ uim-xim --engine=test0003
 #+END_SRC
 
 - default key bindings
@@ -51,7 +51,7 @@ $ uim-xim --engin=test0003
 edit ~/.uim
 
 #+BEGIN_SRC scheme
-;; example setting
+;;; example setting
 ;; bind switch rule1 to F1
 (define-key test0003-switch-rule1-key? "F1")
 ;; use only cangjie5 rule
@@ -63,7 +63,6 @@ edit ~/.uim
    '(wildcard . #t)
    (cons 'rulefile "/path/to/cangjie5-rule.data.scm")))
 (define test0003-rule-list (list my-rule1-setting))
-
 #+END_SRC
 
 * issue
