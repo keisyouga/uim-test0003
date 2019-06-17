@@ -166,7 +166,9 @@
 (define test0003-get-preedit-string
   (lambda (tc)
     (let ((str (if (pair? (test0003-context-cands tc))
-                   (cdr (list-ref (test0003-context-cands tc) (test0003-context-cand-nth tc)))
+                   (cdr (list-ref
+                         (test0003-context-cands tc)
+                         (test0003-context-cand-nth tc)))
                    (apply string-append (reverse (test0003-context-seq tc))))))
       str)))
 
@@ -184,7 +186,8 @@
 ;;; rule must be sorted.
 (define test0003-reduce-rule
   (lambda (seq rule)
-    (if (or (equal? (car seq) "*") (equal? (car seq) "?")) ;TODO: check using wildcard or not
+    ;;TODO: check using wildcard or not
+    (if (or (equal? (car seq) "*") (equal? (car seq) "?"))
         rule
         (take-while
          (lambda (x) (equal? (caaar x) (car seq)))
@@ -199,14 +202,14 @@
     (if (null? (test0003-context-seq tc))
         #f                                        ; no sequence, do nothing
         (let* ((seq (reverse (test0003-context-seq tc)))
-               (rule (test0003-reduce-rule seq (test0003-context-rule tc)))
                ;;(rule (test0003-context-rule tc))
+               (rule (test0003-reduce-rule seq (test0003-context-rule tc)))
                (cands ())
-               (match-func (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
-                               wildcard-match-list? match-list?))
+               (match-func
+                (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
+                    wildcard-match-list? match-list?))
                (prediction (alist-get (test0003-context-rule-setting tc)
-                                      'prediction))
-               )
+                                      'prediction)))
           (for-each (lambda (x)
                       (if (match-func (caar x) seq prediction)
                           ;; add all candidates in the cell
@@ -218,14 +221,16 @@
           (test0003-context-set-cands! tc cands)
           (test0003-context-set-cand-nth! tc 0)
           (if (and test0003-use-candidate-window? (pair? cands))
-              (test0003-open-window tc (length cands) test0003-nr-candidates-max)
+              (test0003-open-window
+               tc (length cands) test0003-nr-candidates-max)
               (test0003-close-window tc))
           (im-select-candidate tc 0)))))
 
 (define test0003-init-handler
   (lambda (id im arg)
     (let ((tc (test0003-context-new id im)))
-      (test0003-switch-rule-setting tc (car test0003-rule-list)); load first rule1
+      ;; load first rule
+      (test0003-switch-rule-setting tc (car test0003-rule-list))
       tc)))
 
 ;;; compare sequence with wildcard pattern
@@ -242,17 +247,17 @@
         (if (null? pat)
             #f
             (if (equal? "*" (car pat))
-                (or (wildcard-match seq (cdr pat)) (wildcard-match (cdr seq) pat))
+                (or (wildcard-match seq (cdr pat))
+                    (wildcard-match (cdr seq) pat))
                 (if (or (equal? (car seq) (car pat)) (equal? "?" (car pat)))
                     (wildcard-match (cdr seq) (cdr pat))
-                    #f)
-                )))))
+                    #f))))))
 
 ;;; if partial, append "*" to pat
 (define wildcard-match-list?
   (lambda (seq pat . opt-partial)
     (let ((partial (if (pair? opt-partial) (car opt-partial) #f)))
-      (if (equal? pat '("*")) #t        ; always match. bit fast
+      (if (equal? pat '("*")) #t        ; always match, return #t. bit fast
           (wildcard-match seq (if partial (append pat '("*")) pat))))))
 
 ;;; (match-list? '("a" "b" "c") '("a" "b")) => #f
@@ -360,8 +365,9 @@
      ((eq? key 'end)
       (if (null? (test0003-context-cands tc))
           (test0003-commit-raw tc)
-          (begin (test0003-context-set-cand-nth! tc (- (length (test0003-context-cands tc)) 1))
-                 (im-select-candidate tc (- (length (test0003-context-cands tc)) 1)))))
+          (let ((pos (- (length (test0003-context-cands tc)) 1)))
+            (test0003-context-set-cand-nth! tc pos)
+            (im-select-candidate tc pos))))
      ;; toggle candidate window
      ((test0003-toggle-candidate-window-key? key key-state)
       (set! test0003-use-candidate-window? (not test0003-use-candidate-window?))
@@ -369,16 +375,19 @@
      ;; toggle prediction
      ((test0003-toggle-prediction-key? key key-state)
       (alist-set! (test0003-context-rule-setting tc) 'prediction
-                  (not (alist-get (test0003-context-rule-setting tc) 'prediction)))
+                  (not (alist-get
+                        (test0003-context-rule-setting tc) 'prediction)))
       (test0003-update-candidate tc))
      ;; toggle autocommit
      ((test0003-toggle-autocommit-key? key key-state)
       (alist-set! (test0003-context-rule-setting tc) 'autocommit
-                  (not (alist-get (test0003-context-rule-setting tc) 'autocommit))))
+                  (not (alist-get
+                        (test0003-context-rule-setting tc) 'autocommit))))
      ;; toggle wildcard-match
      ((test0003-toggle-wildcard-key? key key-state)
       (alist-set! (test0003-context-rule-setting tc) 'wildcard
-                  (not (alist-get (test0003-context-rule-setting tc) 'wildcard))))
+                  (not (alist-get
+                        (test0003-context-rule-setting tc) 'wildcard))))
      ;; backspace
      ((test0003-backspace-key? key key-state)
       (let ((seq (test0003-context-seq tc)))
@@ -398,9 +407,10 @@
       (let ((old-cands (test0003-context-cands tc))
             (old-cand-nth (test0003-context-cand-nth tc))
             (key-str (charcode->string key)))
-        (test0003-context-set-seq! tc (if (null? (test0003-context-seq tc))
-                                          (list key-str)
-                                          (cons key-str (test0003-context-seq tc))))
+        (test0003-context-set-seq!
+         tc (if (null? (test0003-context-seq tc))
+                (list key-str)
+                (cons key-str (test0003-context-seq tc))))
         (test0003-update-candidate tc)
         (if (alist-get (test0003-context-rule-setting tc) 'autocommit)
             (cond
@@ -463,7 +473,8 @@
 
 (define test0003-key-press-handler
   (lambda (tc key key-state)
-    ;; (uim-notify-info (format "test0003-key-press-handler: key=~s state=~s" key key-state))
+    ;; (uim-notify-info
+    ;;  (format "test0003-key-press-handler: key=~s state=~s" key key-state))
     (if (ichar-control? key)
         (im-commit-raw tc)
         (if (test0003-context-on tc)
@@ -504,7 +515,10 @@
                      cell)))
       ;; (uim-notify-info (format "~s" cell))
       (list cand
-            (digit->string (remainder (+ idx 1) 10))        ; reduce display space
+            (digit->string
+             ;; reduce display space
+             ;;(+ idx 1))
+             (remainder (+ idx 1) 10))
             ""))))
 
 ;;; set selected candidate number
