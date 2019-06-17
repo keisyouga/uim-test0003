@@ -71,3 +71,4 @@ edit ~/.uim
 - "*" in first character with large rule takes long time.
 - you can not select candidate with numeric key.
 - project name.
+- rule must be sorted.
