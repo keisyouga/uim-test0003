@@ -195,6 +195,18 @@
              ())                        ; if find-tail returns #f, use ()
          ))))
 
+(define test0003-make-cands
+  (lambda (seq rule match-func prediction)
+    (let* ((cands ()))
+      (for-each (lambda (x)
+                  (if (match-func (caar x) seq prediction)
+                      ;; add all candidates in the cell
+                      (map (lambda (y)
+                             (set! cands (cons (cons (caar x) y) cands)))
+                           (nth 1 x))))
+                rule)
+      (reverse cands))))
+
 ;;; update context-cands from context-seq
 ;;; call it if context-seq is changed
 (define test0003-update-candidate
@@ -204,20 +216,12 @@
         (let* ((seq (reverse (test0003-context-seq tc)))
                ;;(rule (test0003-context-rule tc))
                (rule (test0003-reduce-rule seq (test0003-context-rule tc)))
-               (cands ())
                (match-func
                 (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
                     wildcard-match-list? match-list?))
                (prediction (alist-get (test0003-context-rule-setting tc)
-                                      'prediction)))
-          (for-each (lambda (x)
-                      (if (match-func (caar x) seq prediction)
-                          ;; add all candidates in the cell
-                          (map (lambda (y)
-                                 (set! cands (cons (cons (caar x) y) cands)))
-                               (nth 1 x))))
-                    rule)
-          (set! cands (reverse cands))
+                                      'prediction))
+               (cands (test0003-make-cands seq rule match-func prediction)))
           (test0003-context-set-cands! tc cands)
           (test0003-context-set-cand-nth! tc 0)
           (if (and test0003-use-candidate-window? (pair? cands))
