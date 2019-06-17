@@ -69,6 +69,6 @@ edit ~/.uim
 
 - setting with uim-pref-* does not work.
 - "*" in first character with large rule takes long time.
-- you can not select candidate with numeric key.
 - project name.
 - rule must be sorted.
+- select candidate with numeric key is slow and inconvenient.

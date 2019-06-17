@@ -71,6 +71,12 @@
   (N_ "Use candidate window")
   (N_ "long description will be here."))
 
+(define-custom 'test0003-commit-candidate-by-numeral-key? #t
+  '(test0003)
+  '(boolean)
+  (N_ "Select candidate by numeral keys")
+  (N_ "long description will be here."))
+
 ;;; keys
 
 (define-custom-group 'test0003-keys

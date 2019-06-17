@@ -278,6 +278,19 @@
                   #f
                   (match-list? (cdr seq) (cdr pat) partial)))))))
 
+(define test0003-commit-by-numkey
+  (lambda (tc key)
+    (let* ((pagen (quotient (test0003-context-cand-nth tc)
+                            test0003-nr-candidates-max))
+           (keynum (- (numeric-ichar->integer key) 1))
+           (keynum2 (if (< keynum 0) (+ keynum 10) keynum))
+           (idx (+ keynum2 (* pagen test0003-nr-candidates-max))))
+      (if (< idx (length (test0003-context-cands tc)))
+          (begin
+            ;;(uim-notify-info (format "~s" idx))
+            (test0003-context-set-cand-nth! tc idx)
+            (test0003-update-preedit tc) (test0003-commit tc))))))
+
 (define test0003-proc-on-state
   (lambda (tc key key-state)
     (cond
@@ -416,21 +429,31 @@
                 (list key-str)
                 (cons key-str (test0003-context-seq tc))))
         (test0003-update-candidate tc)
-        (if (alist-get (test0003-context-rule-setting tc) 'autocommit)
-            (cond
-             ;; only one candidate, commit
-             ((= (length (test0003-context-cands tc)) 1)
-              (test0003-commit tc))
-             ;; no candidate
-             ;; if has old-cands, commit old-cands and process new sequence
-             ;; if don't exist old-cands, commit preedit
-             ((= (length (test0003-context-cands tc)) 0)
-              (test0003-context-set-cands! tc old-cands)
-              (test0003-context-set-cand-nth! tc old-cand-nth)
-              (test0003-commit tc)
-              (if (pair? old-cands)
-                  ;; process new sequence. be careful about infinite loop
-                  (test0003-proc-on-state tc key key-state)))))
+        (cond
+         ((and test0003-commit-candidate-by-numeral-key?
+               (ichar-numeric? key)
+               (null? (test0003-context-cands tc))
+               (pair? old-cands))
+          (test0003-context-set-seq! tc (cdr (test0003-context-seq tc)))
+          (test0003-context-set-cands! tc old-cands)
+          (test0003-context-set-cand-nth! tc old-cand-nth)
+          (test0003-commit-by-numkey tc key))
+         (else
+          (if (alist-get (test0003-context-rule-setting tc) 'autocommit)
+              (cond
+               ;; only one candidate, commit
+               ((= (length (test0003-context-cands tc)) 1)
+                (test0003-commit tc))
+               ;; no candidate
+               ;; if has old-cands, commit old-cands and process new sequence
+               ;; if don't exist old-cands, commit preedit
+               ((= (length (test0003-context-cands tc)) 0)
+                (test0003-context-set-cands! tc old-cands)
+                (test0003-context-set-cand-nth! tc old-cand-nth)
+                (test0003-commit tc)
+                (if (pair? old-cands)
+                    ;; process new sequence. be careful about infinite loop
+                    (test0003-proc-on-state tc key key-state)))))))
         ))
      (else (test0003-commit-raw tc))
      )))
