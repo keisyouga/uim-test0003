@@ -84,3 +84,4 @@ replace test0003-make-cands-wildcard with test0003-lib-make-cands-wildcard.
 - project name.
 - rule must be sorted.
 - select candidate with numeric key is slow and inconvenient.
+- large rule consume large memory.
