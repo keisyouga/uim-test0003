@@ -195,11 +195,23 @@
              ())                        ; if find-tail returns #f, use ()
          ))))
 
-(define test0003-make-cands
-  (lambda (seq rule match-func prediction)
+(define test0003-make-cands-wildcard
+  (lambda (seq rule prediction)
     (let* ((cands ()))
       (for-each (lambda (x)
-                  (if (match-func (caar x) seq prediction)
+                  (if (wildcard-match-list? (caar x) seq prediction)
+                      ;; add all candidates in the cell
+                      (map (lambda (y)
+                             (set! cands (cons (cons (caar x) y) cands)))
+                           (nth 1 x))))
+                rule)
+      (reverse cands))))
+
+(define test0003-make-cands-no-wildcard
+  (lambda (seq rule prediction)
+    (let* ((cands ()))
+      (for-each (lambda (x)
+                  (if (match-list? (caar x) seq prediction)
                       ;; add all candidates in the cell
                       (map (lambda (y)
                              (set! cands (cons (cons (caar x) y) cands)))
@@ -216,12 +228,12 @@
         (let* ((seq (reverse (test0003-context-seq tc)))
                ;;(rule (test0003-context-rule tc))
                (rule (test0003-reduce-rule seq (test0003-context-rule tc)))
-               (match-func
-                (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
-                    wildcard-match-list? match-list?))
                (prediction (alist-get (test0003-context-rule-setting tc)
                                       'prediction))
-               (cands (test0003-make-cands seq rule match-func prediction)))
+               (cands (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
+                          ;;(test0003-lib-make-cands-wildcard seq rule prediction)
+                          (test0003-make-cands-wildcard seq rule prediction)
+                          (test0003-make-cands-no-wildcard seq rule prediction))))
           (test0003-context-set-cands! tc cands)
           (test0003-context-set-cand-nth! tc 0)
           (if (and test0003-use-candidate-window? (pair? cands))

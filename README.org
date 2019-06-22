@@ -65,6 +65,18 @@ edit ~/.uim
 (define test0003-rule-list (list my-rule1-setting))
 #+END_SRC
 
+* use dynamic library
+
+1. compile
+  #+BEGIN_SRC
+  $ make
+  #+END_SRC
+
+2. copy libuim-test0003.so to ~/.uim.d/plugin/
+
+3. edit test0003.scm
+replace test0003-make-cands-wildcard with test0003-lib-make-cands-wildcard.
+
 * issue
 
 - setting with uim-pref-* does not work.
