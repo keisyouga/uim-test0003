@@ -74,6 +74,10 @@ unregister module
 # uim-module-manager --unregister MODULE
 #+END_SRC
 
+* im-select-candidate and im-shift-page-candidate
+
+must call after im-activate-candidate-selector
+
 * emacs setting
 
 #+BEGIN_SRC emacs-lisp

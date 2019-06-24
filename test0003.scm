@@ -237,10 +237,11 @@
           (test0003-context-set-cands! tc cands)
           (test0003-context-set-cand-nth! tc 0)
           (if (and test0003-use-candidate-window? (pair? cands))
-              (test0003-open-window
-               tc (length cands) test0003-nr-candidates-max)
+              (begin
+                (test0003-open-window tc (length cands) test0003-nr-candidates-max)
+                (im-select-candidate tc 0))
               (test0003-close-window tc))
-          (im-select-candidate tc 0)))))
+          ))))
 
 (define test0003-init-handler
   (lambda (id im arg)
@@ -365,7 +366,8 @@
           (let ((nr (length (test0003-context-cands tc)))
                 (n (+ (test0003-context-cand-nth tc) 1)))
             (test0003-context-set-cand-nth! tc (if (> nr n) n 0))
-            (im-select-candidate tc (test0003-context-cand-nth tc)))))
+            (if test0003-use-candidate-window?
+                (im-select-candidate tc (test0003-context-cand-nth tc))))))
      ;; prev candidate
      ((test0003-prev-candidate-key? key key-state)
       (if (null? (test0003-context-cands tc))
@@ -373,30 +375,45 @@
           (let ((nr (length (test0003-context-cands tc)))
                 (n (- (test0003-context-cand-nth tc) 1)))
             (test0003-context-set-cand-nth! tc (if (<= 0 n) n (- nr 1)))
-            (im-select-candidate tc (test0003-context-cand-nth tc)))))
+            (if test0003-use-candidate-window?
+                (im-select-candidate tc (test0003-context-cand-nth tc))))))
      ;; next candidate page
      ((test0003-next-page-key? key key-state)
       (if (null? (test0003-context-cands tc))
           (test0003-commit-raw tc)
-          (im-shift-page-candidate tc #t)))
+          (if test0003-use-candidate-window?
+              (im-shift-page-candidate tc #t)
+              (let* ((nr (length (test0003-context-cands tc)))
+                     (nth (test0003-context-cand-nth tc))
+                     (n (+ nth test0003-nr-candidates-max)))
+                (test0003-context-set-cand-nth! tc (if (> nr n) n 0)))
+              )))
      ;; prev candidate page
      ((test0003-prev-page-key? key key-state)
       (if (null? (test0003-context-cands tc))
           (test0003-commit-raw tc)
-          (im-shift-page-candidate tc #f)))
+          (if test0003-use-candidate-window?
+              (im-shift-page-candidate tc #f)
+              (let* ((nr (length (test0003-context-cands tc)))
+                     (nth (test0003-context-cand-nth tc))
+                     (n (- nth test0003-nr-candidates-max)))
+                (test0003-context-set-cand-nth! tc (if (<= 0 n) n (- nr 1))))
+              )))
      ;; first candidate
      ((eq? key 'home)
       (if (null? (test0003-context-cands tc))
           (test0003-commit-raw tc)
           (begin (test0003-context-set-cand-nth! tc 0)
-                 (im-select-candidate tc 0))))
+                 (if test0003-use-candidate-window?
+                     (im-select-candidate tc 0)))))
      ;; last candidate
      ((eq? key 'end)
       (if (null? (test0003-context-cands tc))
           (test0003-commit-raw tc)
           (let ((pos (- (length (test0003-context-cands tc)) 1)))
             (test0003-context-set-cand-nth! tc pos)
-            (im-select-candidate tc pos))))
+            (if test0003-use-candidate-window?
+                (im-select-candidate tc pos)))))
      ;; toggle candidate window
      ((test0003-toggle-candidate-window-key? key key-state)
       (set! test0003-use-candidate-window? (not test0003-use-candidate-window?))
@@ -472,6 +489,7 @@
 
 (define test0003-proc-off-state
   (lambda (tc key key-state)
+    ;;(uim-notify-info "test0003-proc-off-state")
     (if (test0003-on-key? key key-state)
         (test0003-context-set-on! tc #t)
         (im-commit-raw tc))))
