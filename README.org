@@ -52,6 +52,9 @@ edit ~/.uim
 
 #+BEGIN_SRC scheme
 ;;; example setting
+;; on/off key
+(define-key test0003-on-key? '("<Control>\\" "zenkaku-hankaku"))
+(define-key test0003-off-key? '("<Control>\\" "zenkaku-hankaku"))
 ;; bind switch rule1 to F1
 (define-key test0003-switch-rule1-key? "F1")
 ;; use only cangjie5 rule
@@ -65,7 +68,7 @@ edit ~/.uim
 (define test0003-rule-list (list my-rule1-setting))
 #+END_SRC
 
-* use dynamic library
+* use dynamic library (optional)
 
 1. compile
   #+BEGIN_SRC

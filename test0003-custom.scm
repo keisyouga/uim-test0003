@@ -4,7 +4,7 @@
 ;; TODO:
 ;; I can not figure out how to set rule-list with uim-pref-*.
 ;; so comment out define-custom-group to disable uim-pref-*.
-;; please set rule-list with ~/.uim.
+;; if want to customize, please edit ~/.uim.
 ;; (define-custom-group 'test0003
 ;;   (N_ "test0003")
 ;;   (N_ "test0003 input method"))
@@ -19,7 +19,7 @@
 ;;        ))
 ;; lable, rulefile are required
 ;; autocommit, prediction, wildcard are optional
-;; after define rule, list in test0003-rule-list
+;; after define rule-setting, set! test0003-rule-list to list of rule-setting
 (define test0003-rule1-setting
   (list
    '(label . hiragana)
