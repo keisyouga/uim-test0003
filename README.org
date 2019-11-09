@@ -57,6 +57,10 @@ edit ~/.uim
 (define-key test0003-off-key? '("<Control>\\" "zenkaku-hankaku"))
 ;; bind switch rule1 to F1
 (define-key test0003-switch-rule1-key? "F1")
+;; search for module in ~/.uim.d/plugin/
+(define my-find-module
+  (lambda (scm)
+    (find-module-scm-path uim-plugin-scm-load-path scm)))
 ;; use only cangjie5 rule
 (define my-rule1-setting
   (list
@@ -64,7 +68,7 @@ edit ~/.uim
    '(autocommit . #f)
    '(prediction . #t)
    '(wildcard . #t)
-   (cons 'rulefile "/path/to/cangjie5-rule.data.scm")))
+   (cons 'rulefile (my-find-module "cangjie5-rule.data"))))
 (define test0003-rule-list (list my-rule1-setting))
 #+END_SRC
 
