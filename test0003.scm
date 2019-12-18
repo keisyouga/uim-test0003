@@ -231,8 +231,10 @@
                (prediction (alist-get (test0003-context-rule-setting tc)
                                       'prediction))
                (cands (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
-                          ;;(test0003-lib-make-cands-wildcard seq rule prediction)
-                          (test0003-make-cands-wildcard seq rule prediction)
+                          ;; if dynamic library is available, use it
+                          (if (symbol-bound? 'test0003-lib-make-cands-wildcard)
+                              (test0003-lib-make-cands-wildcard seq rule prediction)
+                              (test0003-make-cands-wildcard seq rule prediction))
                           (test0003-make-cands-no-wildcard seq rule prediction))))
           (test0003-context-set-cands! tc cands)
           (test0003-context-set-cand-nth! tc 0)
