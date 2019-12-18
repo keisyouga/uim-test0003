@@ -7,7 +7,7 @@ it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input
 
 * requirement
 
-uim 1.8.6
+uim (version 1.8.6 or later)
 
 * install
 
