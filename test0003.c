@@ -19,7 +19,7 @@ uim_test0003_wildcard_match(uim_lisp seq_, uim_lisp pat_)
 		if (NULLP(pat_)) {
 			return uim_scm_f();
 		}
-		if (strcmp(REFER_C_STR(uim_scm_car(pat_)), "*") == 0) {
+		if (strcmp(REFER_C_STR(CAR(pat_)), "*") == 0) {
 			return (TRUEP(uim_test0003_wildcard_match(seq_, CDR(pat_))) ||
 			        TRUEP(uim_test0003_wildcard_match(CDR(seq_), pat_))) ?
 				uim_scm_t() : uim_scm_f();;
