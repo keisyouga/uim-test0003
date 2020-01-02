@@ -75,6 +75,7 @@ edit ~/.uim
 * use dynamic library (optional)
 
 using dynamic library makes wildcard little faster.
+gcc, uim header file, libuim.so is required.
 
 1. compile
   #+BEGIN_SRC
