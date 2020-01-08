@@ -5,9 +5,12 @@
 ;; I can not figure out how to set rule-list with uim-pref-*.
 ;; so comment out define-custom-group to disable uim-pref-*.
 ;; if want to customize, please edit ~/.uim.
-;; (define-custom-group 'test0003
-;;   (N_ "test0003")
-;;   (N_ "test0003 input method"))
+;;
+;; have problem in uim-module-manager if comment out this code, so uncomment it.
+;; 2020-01-08
+(define-custom-group 'test0003
+  (N_ "test0003")
+  (N_ "test0003 input method"))
 
 ;;; config
 
