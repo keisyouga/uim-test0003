@@ -20,7 +20,7 @@
 ;;       '((label . LABEL) (autocommit . #t) (prediction . #t) (wildcard . #f)
 ;;         (rulefile . "PATH-TO-RULE.DATA.SCM")
 ;;        ))
-;; lable, rulefile are required
+;; label, rulefile are required
 ;; autocommit, prediction, wildcard are optional
 ;; after define rule-setting, set! test0003-rule-list to list of rule-setting
 (define test0003-rule1-setting
