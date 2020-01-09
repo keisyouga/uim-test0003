@@ -84,9 +84,9 @@ gcc, uim header file, libuim.so is required.
 
 2. copy libuim-test0003.so to ~/.uim.d/plugin/
 
-* issue
+* problems
 
-- setting with uim-pref-* does not work.
+- unable to assign test0003-rule-list by uim-pref-*.
 - "*" in first character with large rule takes long time.
 - project name.
 - rule must be sorted.

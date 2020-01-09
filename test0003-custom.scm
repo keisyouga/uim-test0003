@@ -16,13 +16,16 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; rule setting
-;; e.g. (define ruleN-setting
-;;       '((label . LABEL) (autocommit . #t) (prediction . #t) (wildcard . #f)
-;;         (rulefile . "PATH-TO-RULE.DATA.SCM")
-;;        ))
+;; e.g.
+;; (define ruleN-setting
+;;   '((label . LABEL) (autocommit . #t) (prediction . #t) (wildcard . #f)
+;;     (rulefile . "PATH-TO-RULE.DATA.SCM")))
+;; (define test0003-rule-list
+;;   (list test0003-ruleN-setting ... ))
 ;; label, rulefile are required
 ;; autocommit, prediction, wildcard are optional
-;; after define rule-setting, set! test0003-rule-list to list of rule-setting
+;; after define rule-setting, define test0003-rule-list to list of rule-setting
+
 (define test0003-rule1-setting
   (list
    '(label . hiragana)
@@ -50,32 +53,66 @@
    (cons 'rulefile (test0003-find-module "cangjie-jis-rule.data"))
    ))
 
-(define-custom 'test0003-rule-list ()
-  '(test0003)
-  '(key)
-  (N_ "[test0003] rule-list")
-  (N_ "long description will be here"))
+;; define default rule-list setting unless already defined in ~/.uim
+(define test0003-rule-list
+  (if (symbol-bound? 'test0003-rule-list)
+      test0003-rule-list
+      (list test0003-rule1-setting
+            test0003-rule2-setting
+            test0003-rule3-setting))
+  )
 
-(if (null? test0003-rule-list)
-    (set! test0003-rule-list
-          (list test0003-rule1-setting
-                test0003-rule2-setting
-                test0003-rule3-setting)))
+;;; test
+;; (define-custom-group 'test0003-rule1
+;;   (N_ "test0003 rule1")
+;;   (N_ "long description will be here."))
+
+;; (define-custom 'test0003-rule1-label "hiragana"
+;;   '(test0003-rule1)
+;;   '(string ".*")
+;;   (N_ "label")
+;;   (N_ "long description will be here."))
+
+;; (define-custom 'test0003-rule1-autocommit #t
+;;   '(test0003-rule1)
+;;   '(boolean)
+;;   (N_ "autocommit")
+;;   (N_ "long description will be here."))
+
+;; (define-custom 'test0003-rule1-prediction #t
+;;   '(test0003-rule1)
+;;   '(boolean)
+;;   (N_ "prediction")
+;;   (N_ "long description will be here."))
+
+;; (define-custom 'test0003-rule1-wildcard #f
+;;   '(test0003-rule1)
+;;   '(boolean)
+;;   (N_ "wildcard")
+;;   (N_ "long description will be here."))
+
+;; (define-custom 'test0003-rule1-rulefile (test0003-find-module "hiragana-rule.data")
+;;   '(test0003-rule1)
+;;   '(pathname regular-file)
+;;   (N_ "rulefile")
+;;   (N_ "long description will be here."))
+
+;;; candwin
 
 (define-custom 'test0003-nr-candidates-max 10
-  '(test0003)
+  '(test0003 candwin)
   '(integer 1 20)
   (N_ "Candidate window size")
   (N_ "long description will be here."))
 
 (define-custom 'test0003-use-candidate-window? #t
-  '(test0003)
+  '(test0003 candwin)
   '(boolean)
   (N_ "Use candidate window")
   (N_ "long description will be here."))
 
 (define-custom 'test0003-commit-candidate-by-numeral-key? #t
-  '(test0003)
+  '(test0003 candwin)
   '(boolean)
   (N_ "Select candidate by numeral keys")
   (N_ "long description will be here."))
