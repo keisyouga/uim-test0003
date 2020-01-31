@@ -450,6 +450,9 @@
      ((and (modifier-key-mask key-state)
            (not (shift-key-mask key-state)))
       (im-commit-raw tc))
+     ;; control key should be ignored here?
+     ((control-key-mask key-state)
+      (im-commit-raw tc))
      ;; input character
      ((not (symbol? key))
       (let ((old-cands (test0003-context-cands tc))
