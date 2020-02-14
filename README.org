@@ -7,13 +7,22 @@ it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input
 
 * requirement
 
-uim (version 1.8.6 or later)
+- uim (version 1.8.6 or later) header file, libuim.so
+- gcc
 
 * install
 
-- copy *.scm to ~/.uim.d/plugin/
-- run following command
+- compile
+  + build libuim-test0003.so
+  + gcc, uim header file, libuim.so is required.
+  + run make
+#+BEGIN_EXAMPLE
+$ make
+#+END_EXAMPLE
 
+- copy libuim-test0003.so, *.scm to ~/.uim.d/plugin/
+- copy table file (*.txt) to ~/.uim.d/tables/
+- run following command
 #+BEGIN_SRC
 $ uim-module-manager --register test0003 --path ~/.uim.d/plugin
 #+END_SRC
@@ -55,40 +64,24 @@ edit ~/.uim
 ;; on/off key
 (define-key test0003-on-key? '("<Control>\\" "zenkaku-hankaku"))
 (define-key test0003-off-key? '("<Control>\\" "zenkaku-hankaku"))
-;; bind switch rule1 to F1
+;; bind switch rule1, rul2 to F1, F2
 (define-key test0003-switch-rule1-key? "F1")
-;; search for module in ~/.uim.d/plugin/
-(define my-find-module
-  (lambda (scm)
-    (find-module-scm-path uim-plugin-scm-load-path scm)))
-;; use only cangjie5 rule
-(define my-rule1-setting
-  (list
-   '(label . c5)
-   '(autocommit . #f)
-   '(prediction . #t)
-   '(wildcard . #t)
-   (cons 'rulefile (my-find-module "cangjie5-rule.data"))))
-(define test0003-rule-list (list my-rule1-setting))
+(define-key test0003-switch-rule2-key? "F2")
+;; use hiragana, katakana
+(define test0003-rule-list
+  '(((label . hiragana)
+     (autocommit . #f)
+     (prediction . #f)
+     (wildcard . #t)
+     (tablefile . "tables/hiragana.txt.txt"))
+    ((label . katakana)
+     (autocommit . #f)
+     (prediction . #f)
+     (wildcard . #t)
+     (tablefile . "tables/katakana.txt"))))
 #+END_SRC
-
-* use dynamic library (optional)
-
-using dynamic library makes wildcard little faster.
-gcc, uim header file, libuim.so is required.
-
-1. compile
-  #+BEGIN_SRC
-  $ make
-  #+END_SRC
-
-2. copy libuim-test0003.so to ~/.uim.d/plugin/
 
 * problems
 
 - unable to assign test0003-rule-list by uim-pref-*.
-- "*" in first character with large rule takes long time.
 - project name.
-- rule must be sorted.
-- select candidate with numeric key is slow and inconvenient.
-- large rule consume large memory.

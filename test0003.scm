@@ -7,19 +7,34 @@
   (lambda (scm)
     (find-module-scm-path uim-plugin-scm-load-path scm)))
 
+;; search table file in sys-pkgdatadir and config-path
+(define test0003-find-table
+  (lambda (table)
+    (cond ((not (string? table))        ; not a string
+           #f)
+          ((file-readable? table)       ; try no prefix first
+           table)
+          ((file-readable? (string-append (get-config-path #f) "/" table))
+           (string-append (get-config-path #f) "/" table))
+          ((file-readable? (string-append (sys-pkgdatadir) "/" table))
+           (string-append (sys-pkgdatadir) "/" table))
+          (else                         ; not found
+           #f))))
+
 (define alist-get
   (lambda (alist key)
     (cdr (or (assq key alist) '(#f . #f)))))
 
 (define alist-set!
   (lambda (alist key value)
-    (let ((target (assq key alist)))
-      (if target
-          (set-cdr! target value)
-          ;; if no key, add new cell (key . value) to alist
-          (begin
-            (set-cdr! alist (cons (car alist) (cdr alist)))
-            (set-car! alist (cons key value)))))))
+    (if (pair? alist)
+        (let ((target (assq key alist)))
+          (if target
+              (set-cdr! target value)
+              ;; if no key, add new cell (key . value) to alist
+              (begin
+                (set-cdr! alist (cons (car alist) (cdr alist)))
+                (set-car! alist (cons key value))))))))
 
 ;; ;; return position of first found of elt in lst. specify 0 for idx.
 ;; (define list-index
@@ -66,16 +81,20 @@
     (test0003-clear tc)
     (test0003-update-preedit tc)))
 
-(define test0003-load-rule-file
+(define test0003-load-tablefile
   (lambda (tc rule-setting)
-    (let* ((rule (call-with-input-file
-                     (alist-get rule-setting 'rulefile) read)))
-      (test0003-context-set-rule! tc rule)
-      )))
+    (let ((filename (alist-get rule-setting 'tablefile)))
+      (if (test0003-find-table filename)
+          (test0003-lib-open-dic (test0003-find-table filename))
+          (begin
+            ;; (uim-notify-info (format "can't open: ~s" filename))
+            #f                       ; can't open rule file, return #f
+            )))))
 
 (define test0003-switch-rule-setting
   (lambda (tc rule-setting)
-    (test0003-load-rule-file tc rule-setting)
+    ;;(uim-notify-info "switch-rule-setting")
+    (test0003-load-tablefile tc rule-setting)
     (test0003-context-set-rule-setting! tc rule-setting)
     (test0003-update-candidate tc)))
 
@@ -150,8 +169,7 @@
      (cand-nth 0)
      (preedit-string "")
      (raw-commit #f)
-     (rule ())
-     (rule-setting #f)
+     (rule-setting ())
      )))
 (define-record 'test0003-context test0003-context-rec-spec)
 (define test0003-context-new-internal test0003-context-new)
@@ -182,60 +200,29 @@
           (im-pushback-preedit tc preedit-underline str)
           (im-update-preedit tc)))))
 
-;;; find rule-cell which matches first character of seq.
-;;; rule must be sorted.
-(define test0003-reduce-rule
-  (lambda (seq rule)
-    ;;TODO: check using wildcard or not
-    (if (or (equal? (car seq) "*") (equal? (car seq) "?"))
-        rule
-        (take-while
-         (lambda (x) (equal? (caaar x) (car seq)))
-         (or (find-tail (lambda (x) (equal? (caaar x) (car seq))) rule)
-             ())                        ; if find-tail returns #f, use ()
-         ))))
-
-(define test0003-make-cands-wildcard
-  (lambda (seq rule prediction)
-    (let* ((cands ()))
-      (for-each (lambda (x)
-                  (if (wildcard-match-list? (caar x) seq prediction)
-                      ;; add all candidates in the cell
-                      (map (lambda (y)
-                             (set! cands (cons (cons (caar x) y) cands)))
-                           (nth 1 x))))
-                rule)
-      (reverse cands))))
-
-(define test0003-make-cands-no-wildcard
-  (lambda (seq rule prediction)
-    (let* ((cands ()))
-      (for-each (lambda (x)
-                  (if (match-list? (caar x) seq prediction)
-                      ;; add all candidates in the cell
-                      (map (lambda (y)
-                             (set! cands (cons (cons (caar x) y) cands)))
-                           (nth 1 x))))
-                rule)
-      (reverse cands))))
-
 ;;; update context-cands from context-seq
 ;;; call it if context-seq is changed
 (define test0003-update-candidate
   (lambda (tc)
     (if (null? (test0003-context-seq tc))
-        #f                                        ; no sequence, do nothing
-        (let* ((seq (reverse (test0003-context-seq tc)))
-               ;;(rule (test0003-context-rule tc))
-               (rule (test0003-reduce-rule seq (test0003-context-rule tc)))
-               (prediction (alist-get (test0003-context-rule-setting tc)
-                                      'prediction))
-               (cands (if (alist-get (test0003-context-rule-setting tc) 'wildcard)
-                          ;; if dynamic library is available, use it
-                          (if (symbol-bound? 'test0003-lib-make-cands-wildcard)
-                              (test0003-lib-make-cands-wildcard seq rule prediction)
-                              (test0003-make-cands-wildcard seq rule prediction))
-                          (test0003-make-cands-no-wildcard seq rule prediction))))
+        #f                              ; no sequence, do nothing
+        (let* ((pre (alist-get (test0003-context-rule-setting tc) 'prediction))
+               (wc (alist-get (test0003-context-rule-setting tc) 'wildcard))
+               (query (apply string-append (reverse (test0003-context-seq tc))))
+               (cands
+                (if wc
+                    (if pre
+                        ;; prefixs wildcard
+                        (test0003-lib-make-cands-wildcard-prefix query)
+                        ;; whole wildcard
+                        (test0003-lib-make-cands-wildcard query))
+                    (if pre
+                        ;; prefixs search
+                        (test0003-lib-make-cands-find-prefix query)
+                        ;; whole search
+                        (test0003-lib-make-cands-find query))))
+               )
+          ;;(uim-notify-info (format "~s" cands))
           (test0003-context-set-cands! tc cands)
           (test0003-context-set-cand-nth! tc 0)
           (if (and test0003-use-candidate-window? (pair? cands))
@@ -251,47 +238,6 @@
       ;; load first rule
       (test0003-switch-rule-setting tc (car test0003-rule-list))
       tc)))
-
-;;; compare sequence with wildcard pattern
-;;; (wildcard-match '("a" "b" "c" "d" "e") '("a" "*" "c" "?" "e")) => #t
-(define wildcard-match
-  (lambda (seq pat)
-    (if (null? seq)
-        ;; no more sequence
-        (if (null? pat)
-            #t
-            ;; whether all remaining pattern is "*" ?
-            (not (find-tail (lambda (x) (not (equal? x "*"))) pat)))
-        ;; has sequence
-        (if (null? pat)
-            #f
-            (if (equal? "*" (car pat))
-                (or (wildcard-match seq (cdr pat))
-                    (wildcard-match (cdr seq) pat))
-                (if (or (equal? (car seq) (car pat)) (equal? "?" (car pat)))
-                    (wildcard-match (cdr seq) (cdr pat))
-                    #f))))))
-
-;;; if partial, append "*" to pat
-(define wildcard-match-list?
-  (lambda (seq pat . opt-partial)
-    (let ((partial (if (pair? opt-partial) (car opt-partial) #f)))
-      (if (equal? pat '("*")) #t        ; always match, return #t. bit fast
-          (wildcard-match seq (if partial (append pat '("*")) pat))))))
-
-;;; (match-list? '("a" "b" "c") '("a" "b")) => #f
-;;; (match-list? '("a" "b" "c") '("a" "b") #t) => #t
-;;; (match-list? '("a" "b" "c") '("a" "b") #f) => #f
-(define match-list?
-  (lambda (seq pat . opt-partial)
-    (let ((partial (if (pair? opt-partial) (car opt-partial) #f)))
-      (if (null? seq)
-          (null? pat)
-          (if (null? pat)
-              partial
-              (if (not (equal? (car seq) (car pat)))
-                  #f
-                  (match-list? (cdr seq) (cdr pat) partial)))))))
 
 (define test0003-commit-by-numkey
   (lambda (tc key)
@@ -531,6 +477,8 @@
 
 (define test0003-release-handler
   (lambda (tc)
+    ;;(uim-notify-info "release-handler")
+    (test0003-lib-close-dic)
     #f))
 
 (define test0003-key-press-handler
@@ -571,10 +519,8 @@
     ;; (uim-notify-info (format "test0003-get-candidate-handler:~d" idx))
     (let* ((cands (test0003-context-cands tc))
            (cell (nth idx cands))
-           (cand (if (pair? cell)
-                     (string-append (cdr cell) ":"
-                                    (apply string-append (car cell)))
-                     cell)))
+           (cand (string-append (cdr cell) ":" (car cell)))
+           )
       ;; (uim-notify-info (format "~s" cell))
       (list cand
             (digit->string

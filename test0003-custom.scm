@@ -19,10 +19,10 @@
 ;; e.g.
 ;; (define ruleN-setting
 ;;   '((label . LABEL) (autocommit . #t) (prediction . #t) (wildcard . #f)
-;;     (rulefile . "PATH-TO-RULE.DATA.SCM")))
+;;     (tablefile . "PATH-TO-TABLEFILE")))
 ;; (define test0003-rule-list
 ;;   (list test0003-ruleN-setting ... ))
-;; label, rulefile are required
+;; label, tablefile are required
 ;; autocommit, prediction, wildcard are optional
 ;; after define rule-setting, define test0003-rule-list to list of rule-setting
 
@@ -32,7 +32,7 @@
    '(autocommit . #t)
    '(prediction . #t)
    '(wildcard . #f)
-   (cons 'rulefile (test0003-find-module "hiragana-rule.data"))
+   '(tablefile . "tables/hiragana.txt")
    ))
 
 (define test0003-rule2-setting
@@ -41,7 +41,7 @@
    '(autocommit . #t)
    '(prediction . #t)
    '(wildcard . #f)
-   (cons 'rulefile (test0003-find-module "katakana-rule.data"))
+   '(tablefile . "tables/katakana.txt")
    ))
 
 (define test0003-rule3-setting
@@ -50,7 +50,7 @@
    '(autocommit . #f)
    '(prediction . #f)
    '(wildcard . #t)
-   (cons 'rulefile (test0003-find-module "cangjie-jis-rule.data"))
+   '(tablefile . "tables/cj-jis.txt")
    ))
 
 ;; define default rule-list setting unless already defined in ~/.uim
@@ -91,10 +91,10 @@
 ;;   (N_ "wildcard")
 ;;   (N_ "long description will be here."))
 
-;; (define-custom 'test0003-rule1-rulefile (test0003-find-module "hiragana-rule.data")
+;; (define-custom 'test0003-rule1-tablefile "tables/hiragana.txt"
 ;;   '(test0003-rule1)
 ;;   '(pathname regular-file)
-;;   (N_ "rulefile")
+;;   (N_ "tablefile")
 ;;   (N_ "long description will be here."))
 
 ;;; candwin
