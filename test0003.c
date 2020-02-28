@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 #include "uim.h"
 #include "uim-scm.h"
 #include "uim-scm-abbrev.h"
 #include "dynlib.h"
-
-/* stores table file data */
-static char *table_buf;
 
 /* read line from string
  * return read bytes
@@ -32,52 +33,6 @@ gets_from_string(char *dst, int size, char *src)
 
 	/* n == size */
 	return n;
-}
-
-/* free table_buf */
-static uim_lisp
-close_dic()
-{
-	if (table_buf) {
-		free(table_buf);
-		table_buf = NULL;
-	}
-	return uim_scm_t();
-}
-
-/* read filename_'s contents to table_buf */
-static uim_lisp
-open_dic(uim_lisp filename_)
-{
-	const char *dicfilename = REFER_C_STR(filename_);
-	FILE *fp;
-	struct stat sb;
-	int n;
-
-	/* close opened table */
-	close_dic();
-
-	if (stat(dicfilename, &sb) == -1) {
-		perror("stat");
-		return uim_scm_f();
-	}
-	table_buf = malloc(sb.st_size + 1);
-	if (!table_buf) {
-		perror("malloc");
-		return uim_scm_f();
-	}
-	fp = fopen(dicfilename, "r");
-	if (!fp) {
-		perror("fopen");
-		return uim_scm_f();
-	}
-
-	n = fread(table_buf, 1, sb.st_size, fp);
-	table_buf[n] = '\0';
-
-	fclose(fp);
-
-	return uim_scm_t();
 }
 
 /* wildcard match
@@ -127,8 +82,10 @@ my_strncmp(const char *s1, const char *s2)
 /* make candidate list '((entry1 . content1) (entry2 . content2) ... )
  */
 static uim_lisp
-make_cands_internal(const char *query, int cmp(const char *, const char *))
+make_cands_internal(uim_lisp query_, uim_lisp table_, int cmp(const char *, const char *))
 {
+	const char *query = REFER_C_STR(query_);
+	const char *tablefilename = REFER_C_STR(table_);
 	uim_lisp lst_ = uim_scm_null();
 	char line[256];
 	char entry[256];
@@ -136,12 +93,29 @@ make_cands_internal(const char *query, int cmp(const char *, const char *))
 	int nbyte = 0;
 	int pos = 0;
 
-	/* somohow, table_buf do not initialized, return empty list */
-	if (!table_buf) {
+	/* open, mmap, make candidate list, munmap, close */
+	int fd;
+	struct stat sb;
+	char *addr;
+
+	fd = open(tablefilename, O_RDONLY);
+	if (fd == -1) {
+		perror("open");
 		return lst_;
 	}
 
-	while ((nbyte = gets_from_string(line, sizeof(line), &table_buf[pos])) > 0) {
+	if (fstat(fd, &sb) == -1) {
+		perror("fstat");
+		return lst_;
+	}
+
+	addr = mmap(NULL, sb.st_size, PROT_READ, MAP_SHARED, fd, 0);
+	if (addr == MAP_FAILED) {
+		perror("mmap");
+		return lst_;
+	}
+
+	while ((nbyte = gets_from_string(line, sizeof(line), &addr[pos])) > 0) {
 		int n = sscanf(line, "%s %s", entry, content);
 		if (n == 2) {
 			if (cmp(entry, query)) {
@@ -151,48 +125,47 @@ make_cands_internal(const char *query, int cmp(const char *, const char *))
 		pos += nbyte;
 	}
 
+	if (munmap(addr, sb.st_size) == -1) {
+		perror("munmap");
+	}
+	close(fd);
+
 	return uim_scm_callf("reverse", "o", lst_);
 }
 
 static uim_lisp
-make_cands_wildcard(uim_lisp str_)
+make_cands_wildcard(uim_lisp str_, uim_lisp table_)
 {
-	const char *query = REFER_C_STR(str_);
-	return make_cands_internal(query, match);
+	return make_cands_internal(str_, table_, match);
 }
 
 static uim_lisp
-make_cands_wildcard_prefix(uim_lisp str_)
+make_cands_wildcard_prefix(uim_lisp str_, uim_lisp table_)
 {
-	const char *query = REFER_C_STR(str_);
-	char query2[256];           /* enough size? */
-	sprintf(query2, "%s*", query);
-	return make_cands_internal(query2, match);
+	/* "str" => "str*" */
+	uim_lisp str2_ = uim_scm_callf("string-append", "oo", str_, MAKE_STR("*"));
+	return make_cands_internal(str2_, table_, match);
 }
 
 static uim_lisp
-make_cands_find(uim_lisp str_)
+make_cands_find(uim_lisp str_, uim_lisp table_)
 {
-	const char *query = REFER_C_STR(str_);
-	return make_cands_internal(query, my_strcmp);
+	return make_cands_internal(str_, table_, my_strcmp);
 }
 
 static uim_lisp
-make_cands_find_prefix(uim_lisp str_)
+make_cands_find_prefix(uim_lisp str_, uim_lisp table_)
 {
-	const char *query = REFER_C_STR(str_);
-	return make_cands_internal(query, my_strncmp);
+	return make_cands_internal(str_, table_, my_strncmp);
 }
 
 void
 uim_plugin_instance_init(void)
 {
-	uim_scm_init_proc1("test0003-lib-open-dic", open_dic);
-	uim_scm_init_proc0("test0003-lib-close-dic", close_dic);
-	uim_scm_init_proc1("test0003-lib-make-cands-wildcard-prefix", make_cands_wildcard_prefix);
-	uim_scm_init_proc1("test0003-lib-make-cands-wildcard", make_cands_wildcard);
-	uim_scm_init_proc1("test0003-lib-make-cands-find-prefix", make_cands_find_prefix);
-	uim_scm_init_proc1("test0003-lib-make-cands-find", make_cands_find);
+	uim_scm_init_proc2("test0003-lib-make-cands-wildcard-prefix", make_cands_wildcard_prefix);
+	uim_scm_init_proc2("test0003-lib-make-cands-wildcard", make_cands_wildcard);
+	uim_scm_init_proc2("test0003-lib-make-cands-find-prefix", make_cands_find_prefix);
+	uim_scm_init_proc2("test0003-lib-make-cands-find", make_cands_find);
 }
 
 void

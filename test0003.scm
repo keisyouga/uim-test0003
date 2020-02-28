@@ -8,16 +8,16 @@
     (find-module-scm-path uim-plugin-scm-load-path scm)))
 
 ;; search table file in sys-pkgdatadir and config-path
-(define test0003-find-table
-  (lambda (table)
-    (cond ((not (string? table))        ; not a string
+(define test0003-find-tablefile
+  (lambda (tablefile)
+    (cond ((not (string? tablefile))        ; not a string
            #f)
-          ((file-readable? table)       ; try no prefix first
-           table)
-          ((file-readable? (string-append (get-config-path #f) "/" table))
-           (string-append (get-config-path #f) "/" table))
-          ((file-readable? (string-append (sys-pkgdatadir) "/" table))
-           (string-append (sys-pkgdatadir) "/" table))
+          ((file-readable? tablefile)       ; try no prefix first
+           tablefile)
+          ((file-readable? (string-append (get-config-path #f) "/" tablefile))
+           (string-append (get-config-path #f) "/" tablefile))
+          ((file-readable? (string-append (sys-pkgdatadir) "/" tablefile))
+           (string-append (sys-pkgdatadir) "/" tablefile))
           (else                         ; not found
            #f))))
 
@@ -81,20 +81,9 @@
     (test0003-clear tc)
     (test0003-update-preedit tc)))
 
-(define test0003-load-tablefile
-  (lambda (tc rule-setting)
-    (let ((filename (alist-get rule-setting 'tablefile)))
-      (if (test0003-find-table filename)
-          (test0003-lib-open-dic (test0003-find-table filename))
-          (begin
-            ;; (uim-notify-info (format "can't open: ~s" filename))
-            #f                       ; can't open rule file, return #f
-            )))))
-
 (define test0003-switch-rule-setting
   (lambda (tc rule-setting)
     ;;(uim-notify-info "switch-rule-setting")
-    (test0003-load-tablefile tc rule-setting)
     (test0003-context-set-rule-setting! tc rule-setting)
     (test0003-update-candidate tc)))
 
@@ -206,21 +195,23 @@
   (lambda (tc)
     (if (null? (test0003-context-seq tc))
         #f                              ; no sequence, do nothing
-        (let* ((pre (alist-get (test0003-context-rule-setting tc) 'prediction))
-               (wc (alist-get (test0003-context-rule-setting tc) 'wildcard))
+        (let* ((rule-setting (test0003-context-rule-setting tc))
+               (pre (alist-get rule-setting 'prediction))
+               (wc (alist-get rule-setting 'wildcard))
                (query (apply string-append (reverse (test0003-context-seq tc))))
+               (table (test0003-find-tablefile (alist-get rule-setting 'tablefile)))
                (cands
                 (if wc
                     (if pre
                         ;; prefixs wildcard
-                        (test0003-lib-make-cands-wildcard-prefix query)
+                        (test0003-lib-make-cands-wildcard-prefix query table)
                         ;; whole wildcard
-                        (test0003-lib-make-cands-wildcard query))
+                        (test0003-lib-make-cands-wildcard query table))
                     (if pre
                         ;; prefixs search
-                        (test0003-lib-make-cands-find-prefix query)
+                        (test0003-lib-make-cands-find-prefix query table)
                         ;; whole search
-                        (test0003-lib-make-cands-find query))))
+                        (test0003-lib-make-cands-find query table))))
                )
           ;;(uim-notify-info (format "~s" cands))
           (test0003-context-set-cands! tc cands)
@@ -478,7 +469,6 @@
 (define test0003-release-handler
   (lambda (tc)
     ;;(uim-notify-info "release-handler")
-    (test0003-lib-close-dic)
     #f))
 
 (define test0003-key-press-handler
