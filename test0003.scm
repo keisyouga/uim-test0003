@@ -551,6 +551,9 @@
  #f
  )
 
+;;; im-switcher.scm
+(alist-set! imsw-iconic-label-alist 'test0003 "03")
+
 ;;; Local Variables:
 ;;; tab-width: 8
 ;;; End:
