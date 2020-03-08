@@ -356,7 +356,14 @@
      ;; toggle candidate window
      ((test0003-toggle-candidate-window-key? key key-state)
       (set! test0003-use-candidate-window? (not test0003-use-candidate-window?))
-      (test0003-update-candidate tc))
+      ;; open window if test0003-use-candidate-window? & candidates exists,
+      ;; otherwise close window
+      (let ((cands (test0003-context-cands tc)))
+        (if (and test0003-use-candidate-window? (pair? cands))
+            (begin
+              (test0003-open-window tc (length cands) test0003-nr-candidates-max)
+              (im-select-candidate tc (test0003-context-cand-nth tc)))
+            (test0003-close-window tc))))
      ;; toggle prediction
      ((test0003-toggle-prediction-key? key key-state)
       (alist-set! (test0003-context-rule-setting tc) 'prediction
