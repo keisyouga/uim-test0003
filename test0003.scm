@@ -53,7 +53,8 @@
 ;; widgets and actions
 
 ;; widgets
-(define test0003-widgets '(widget_test0003_input_mode))
+(define test0003-widgets '(widget_test0003_input_mode
+                           widget_test0003_toggles))
 
 ;; default activity for each widgets
 (define default-widget_test0003_input_mode 'action_test0003_off)
@@ -73,6 +74,13 @@
             (string-append
              "action_test0003_" (symbol->string (alist-get x 'label)))))
          test0003-rule-list)))
+
+;; on/off settings for toolbar
+(define test0003-toggles-actions
+  '(action_test0003_toggle_autocommit
+    action_test0003_toggle_candidate_window
+    action_test0003_toggle_predction
+    action_test0003_toggle_wildcard))
 
 ;;; implementations
 
@@ -139,6 +147,73 @@
  test0003-rule-list
  )
 
+;; register action: autocommit, candidate_window, prediction, wildcard,
+(register-action 'action_test0003_toggle_autocommit
+                 (lambda (tc)
+                   (list 'autocommit
+                         "a"
+                         (N_ "toggle autocommit")
+                         (N_ "autocommit mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (alist-get
+                         (test0003-context-rule-setting tc)
+                         'autocommit)))
+                 (lambda (tc)
+                   (alist-set! (test0003-context-rule-setting tc) 'autocommit
+                               (not (alist-get
+                                     (test0003-context-rule-setting tc) 'autocommit)))
+                   ))
+
+(register-action 'action_test0003_toggle_candidate_window
+                 (lambda (tc)
+                   (list 'candidate_window
+                         "c"
+                         (N_ "toggle candidate-window")
+                         (N_ "candidate-window mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        test0003-use-candidate-window?))
+                 (lambda (tc)
+                   (set! test0003-use-candidate-window?
+                         (not test0003-use-candidate-window?))
+                   ))
+
+(register-action 'action_test0003_toggle_predction
+                 (lambda (tc)
+                   (list 'prediction
+                         "p"
+                         (N_ "toggle prediction")
+                         (N_ "prediction mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (alist-get
+                         (test0003-context-rule-setting tc)
+                         'prediction)))
+                 (lambda (tc)
+                   (alist-set! (test0003-context-rule-setting tc) 'prediction
+                               (not (alist-get
+                                     (test0003-context-rule-setting tc) 'prediction)))
+                   (test0003-update-candidate tc)
+                   ))
+
+(register-action 'action_test0003_toggle_wildcard
+                 (lambda (tc)
+                   (list 'wildcard
+                         "w"
+                         (N_ "toggle wildcard")
+                         (N_ "wildcard mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (alist-get
+                         (test0003-context-rule-setting tc)
+                         'wildcard)))
+                 (lambda (tc)
+                   (alist-set! (test0003-context-rule-setting tc) 'wildcard
+                               (not (alist-get
+                                     (test0003-context-rule-setting tc) 'wildcard)))
+                   ))
+
 ;; Update widget definitions based on action configurations. The
 ;; procedure is needed for on-the-fly reconfiguration involving the
 ;; custom API
@@ -146,7 +221,11 @@
   (lambda ()
     (register-widget 'widget_test0003_input_mode
                      (activity-indicator-new test0003-input-mode-actions)
-                     (actions-new test0003-input-mode-actions))))
+                     (actions-new test0003-input-mode-actions))
+    (register-widget 'widget_test0003_toggles
+                     (activity-indicator-new test0003-toggles-actions)
+                     (actions-new test0003-toggles-actions))
+    (context-list-replace-widgets! 'test0003 test0003-widgets)))
 
 (define test0003-context-rec-spec
   (append
@@ -533,6 +612,10 @@
     (test0003-context-set-cand-nth! tc idx)
     (test0003-update-preedit tc)))
 
+;;; imsw-iconic-label-alist is defined in im-switcher.scm
+;;; add iconic-label before test0003-configure-widgets
+(alist-set! imsw-iconic-label-alist 'test0003 "03")
+
 (test0003-configure-widgets)
 
 (register-im
@@ -557,9 +640,6 @@
  #f
  #f
  )
-
-;;; im-switcher.scm
-(alist-set! imsw-iconic-label-alist 'test0003 "03")
 
 ;;; Local Variables:
 ;;; tab-width: 8
