@@ -54,7 +54,10 @@
 
 ;; widgets
 (define test0003-widgets '(widget_test0003_input_mode
-                           widget_test0003_toggles))
+                           widget_test0003_toggle_autocommit
+                           widget_test0003_toggle_candidate_window
+                           widget_test0003_toggle_predction
+                           widget_test0003_toggle_wildcard))
 
 ;; default activity for each widgets
 (define default-widget_test0003_input_mode 'action_test0003_off)
@@ -81,6 +84,18 @@
     action_test0003_toggle_candidate_window
     action_test0003_toggle_predction
     action_test0003_toggle_wildcard))
+
+(define test0003-toggle-autocommit-actions
+  '(action_test0003_toggle_autocommit))
+
+(define test0003-toggle-candidate-window-actions
+  '(action_test0003_toggle_candidate_window))
+
+(define test0003-toggle-prediction--actions
+  '(action_test0003_toggle_predction))
+
+(define test0003-toggle-wildcard-actions
+  '(action_test0003_toggle_wildcard))
 
 ;;; implementations
 
@@ -222,9 +237,18 @@
     (register-widget 'widget_test0003_input_mode
                      (activity-indicator-new test0003-input-mode-actions)
                      (actions-new test0003-input-mode-actions))
-    (register-widget 'widget_test0003_toggles
-                     (activity-indicator-new test0003-toggles-actions)
-                     (actions-new test0003-toggles-actions))
+    (register-widget 'widget_test0003_toggle_autocommit
+                     (activity-indicator-new test0003-toggle-autocommit-actions)
+                     (actions-new test0003-toggle-autocommit-actions))
+    (register-widget 'widget_test0003_toggle_candidate_window
+                     (activity-indicator-new test0003-toggle-candidate-window-actions)
+                     (actions-new test0003-toggle-candidate-window-actions))
+    (register-widget 'widget_test0003_toggle_predction
+                     (activity-indicator-new test0003-toggle-prediction--actions)
+                     (actions-new test0003-toggle-prediction--actions))
+    (register-widget 'widget_test0003_toggle_wildcard
+                     (activity-indicator-new test0003-toggle-wildcard-actions)
+                     (actions-new test0003-toggle-wildcard-actions))
     (context-list-replace-widgets! 'test0003 test0003-widgets)))
 
 (define test0003-context-rec-spec
