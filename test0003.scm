@@ -78,13 +78,6 @@
              "action_test0003_" (symbol->string (alist-get x 'label)))))
          test0003-rule-list)))
 
-;; on/off settings for toolbar
-(define test0003-toggles-actions
-  '(action_test0003_toggle_autocommit
-    action_test0003_toggle_candidate_window
-    action_test0003_toggle_predction
-    action_test0003_toggle_wildcard))
-
 (define test0003-toggle-autocommit-actions
   '(action_test0003_toggle_autocommit))
 
