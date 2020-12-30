@@ -91,7 +91,7 @@
 (define test0003-toggle-candidate-window-actions
   '(action_test0003_toggle_candidate_window))
 
-(define test0003-toggle-prediction--actions
+(define test0003-toggle-prediction-actions
   '(action_test0003_toggle_predction))
 
 (define test0003-toggle-wildcard-actions
@@ -244,8 +244,8 @@
                      (activity-indicator-new test0003-toggle-candidate-window-actions)
                      (actions-new test0003-toggle-candidate-window-actions))
     (register-widget 'widget_test0003_toggle_predction
-                     (activity-indicator-new test0003-toggle-prediction--actions)
-                     (actions-new test0003-toggle-prediction--actions))
+                     (activity-indicator-new test0003-toggle-prediction-actions)
+                     (actions-new test0003-toggle-prediction-actions))
     (register-widget 'widget_test0003_toggle_wildcard
                      (activity-indicator-new test0003-toggle-wildcard-actions)
                      (actions-new test0003-toggle-wildcard-actions))
