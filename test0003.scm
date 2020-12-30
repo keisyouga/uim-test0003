@@ -56,7 +56,7 @@
 (define test0003-widgets '(widget_test0003_input_mode
                            widget_test0003_toggle_autocommit
                            widget_test0003_toggle_candidate_window
-                           widget_test0003_toggle_predction
+                           widget_test0003_toggle_prediction
                            widget_test0003_toggle_wildcard))
 
 ;; default activity for each widgets
@@ -85,7 +85,7 @@
   '(action_test0003_toggle_candidate_window))
 
 (define test0003-toggle-prediction-actions
-  '(action_test0003_toggle_predction))
+  '(action_test0003_toggle_prediction))
 
 (define test0003-toggle-wildcard-actions
   '(action_test0003_toggle_wildcard))
@@ -187,7 +187,7 @@
                          (not test0003-use-candidate-window?))
                    ))
 
-(register-action 'action_test0003_toggle_predction
+(register-action 'action_test0003_toggle_prediction
                  (lambda (tc)
                    (list 'prediction
                          "p"
@@ -236,7 +236,7 @@
     (register-widget 'widget_test0003_toggle_candidate_window
                      (activity-indicator-new test0003-toggle-candidate-window-actions)
                      (actions-new test0003-toggle-candidate-window-actions))
-    (register-widget 'widget_test0003_toggle_predction
+    (register-widget 'widget_test0003_toggle_prediction
                      (activity-indicator-new test0003-toggle-prediction-actions)
                      (actions-new test0003-toggle-prediction-actions))
     (register-widget 'widget_test0003_toggle_wildcard
