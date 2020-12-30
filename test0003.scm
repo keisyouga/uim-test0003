@@ -79,16 +79,16 @@
          test0003-rule-list)))
 
 (define test0003-toggle-autocommit-actions
-  '(action_test0003_toggle_autocommit))
+  '(action_test0003_autocommit_on action_test0003_autocommit_off))
 
 (define test0003-toggle-candidate-window-actions
-  '(action_test0003_toggle_candidate_window))
+  '(action_test0003_candidate_window_on action_test0003_candidate_window_off))
 
 (define test0003-toggle-prediction-actions
-  '(action_test0003_toggle_prediction))
+  '(action_test0003_prediction_on action_test0003_prediction_off))
 
 (define test0003-toggle-wildcard-actions
-  '(action_test0003_toggle_wildcard))
+  '(action_test0003_wildcard_on action_test0003_wildcard_off))
 
 ;;; implementations
 
@@ -156,11 +156,11 @@
  )
 
 ;; register action: autocommit, candidate_window, prediction, wildcard,
-(register-action 'action_test0003_toggle_autocommit
+(register-action 'action_test0003_autocommit_on
                  (lambda (tc)
                    (list 'autocommit
                          "a"
-                         (N_ "toggle autocommit")
+                         (N_ "autocommit on")
                          (N_ "autocommit mode")))
                  (lambda (tc)
                    (and (test0003-context-on tc)
@@ -168,30 +168,51 @@
                          (test0003-context-rule-setting tc)
                          'autocommit)))
                  (lambda (tc)
-                   (alist-set! (test0003-context-rule-setting tc) 'autocommit
-                               (not (alist-get
-                                     (test0003-context-rule-setting tc) 'autocommit)))
-                   ))
+                   (alist-set! (test0003-context-rule-setting tc) 'autocommit #t)))
 
-(register-action 'action_test0003_toggle_candidate_window
+(register-action 'action_test0003_autocommit_off
+                 (lambda (tc)
+                   (list 'autocommit
+                         "_"
+                         (N_ "autocommit off")
+                         (N_ "autocommit mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (not (alist-get
+                              (test0003-context-rule-setting tc)
+                              'autocommit))))
+                 (lambda (tc)
+                   (alist-set! (test0003-context-rule-setting tc) 'autocommit #f)))
+
+(register-action 'action_test0003_candidate_window_on
                  (lambda (tc)
                    (list 'candidate_window
                          "c"
-                         (N_ "toggle candidate-window")
+                         (N_ "candidate-window on")
                          (N_ "candidate-window mode")))
                  (lambda (tc)
                    (and (test0003-context-on tc)
                         test0003-use-candidate-window?))
                  (lambda (tc)
-                   (set! test0003-use-candidate-window?
-                         (not test0003-use-candidate-window?))
-                   ))
+                   (set! test0003-use-candidate-window? #t)))
 
-(register-action 'action_test0003_toggle_prediction
+(register-action 'action_test0003_candidate_window_off
+                 (lambda (tc)
+                   (list 'candidate_window
+                         "_"
+                         (N_ "candidate-window off")
+                         (N_ "candidate-window mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (not test0003-use-candidate-window?)))
+                 (lambda (tc)
+                   (set! test0003-use-candidate-window? #f)))
+
+(register-action 'action_test0003_prediction_on
                  (lambda (tc)
                    (list 'prediction
                          "p"
-                         (N_ "toggle prediction")
+                         (N_ "prediction on")
                          (N_ "prediction mode")))
                  (lambda (tc)
                    (and (test0003-context-on tc)
@@ -199,17 +220,29 @@
                          (test0003-context-rule-setting tc)
                          'prediction)))
                  (lambda (tc)
-                   (alist-set! (test0003-context-rule-setting tc) 'prediction
-                               (not (alist-get
-                                     (test0003-context-rule-setting tc) 'prediction)))
-                   (test0003-update-candidate tc)
-                   ))
+                   (alist-set! (test0003-context-rule-setting tc) 'prediction #t)
+                   (test0003-update-candidate tc)))
 
-(register-action 'action_test0003_toggle_wildcard
+(register-action 'action_test0003_prediction_off
+                 (lambda (tc)
+                   (list 'prediction
+                         "_"
+                         (N_ "prediction off")
+                         (N_ "prediction mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (not (alist-get
+                              (test0003-context-rule-setting tc)
+                              'prediction))))
+                 (lambda (tc)
+                   (alist-set! (test0003-context-rule-setting tc) 'prediction #f)
+                   (test0003-update-candidate tc)))
+
+(register-action 'action_test0003_wildcard_on
                  (lambda (tc)
                    (list 'wildcard
                          "w"
-                         (N_ "toggle wildcard")
+                         (N_ "wildcard on")
                          (N_ "wildcard mode")))
                  (lambda (tc)
                    (and (test0003-context-on tc)
@@ -217,10 +250,21 @@
                          (test0003-context-rule-setting tc)
                          'wildcard)))
                  (lambda (tc)
-                   (alist-set! (test0003-context-rule-setting tc) 'wildcard
-                               (not (alist-get
-                                     (test0003-context-rule-setting tc) 'wildcard)))
-                   ))
+                   (alist-set! (test0003-context-rule-setting tc) 'wildcard #t)))
+
+(register-action 'action_test0003_wildcard_off
+                 (lambda (tc)
+                   (list 'wildcard
+                         "_"
+                         (N_ "wildcard off")
+                         (N_ "wildcard mode")))
+                 (lambda (tc)
+                   (and (test0003-context-on tc)
+                        (not (alist-get
+                              (test0003-context-rule-setting tc)
+                              'wildcard))))
+                 (lambda (tc)
+                   (alist-set! (test0003-context-rule-setting tc) 'wildcard #f)))
 
 ;; Update widget definitions based on action configurations. The
 ;; procedure is needed for on-the-fly reconfiguration involving the
