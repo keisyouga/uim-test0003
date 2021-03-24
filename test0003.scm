@@ -673,10 +673,6 @@
     (test0003-context-set-cand-nth! tc idx)
     (test0003-update-preedit tc)))
 
-;;; imsw-iconic-label-alist is defined in im-switcher.scm
-;;; add iconic-label before test0003-configure-widgets
-(alist-set! imsw-iconic-label-alist 'test0003 "03")
-
 (test0003-configure-widgets)
 
 (register-im
