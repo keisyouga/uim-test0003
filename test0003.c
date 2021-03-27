@@ -23,11 +23,8 @@ gets_from_string(char *dst, int size, char *src)
 			return n;
 		} else if (src[n] == '\n') {
 			/* set EOF */
-			if (n + 1 < size) {
-				n++;
-				dst[n] = '\0';
-			}
-			return n;
+			dst[n] = '\0';
+			return n + 1; /* return number of bytes read, not a dst's length */
 		}
 	}
 
@@ -116,7 +113,8 @@ make_cands_internal(uim_lisp query_, uim_lisp table_, int cmp(const char *, cons
 	}
 
 	while ((nbyte = gets_from_string(line, sizeof(line), &addr[pos])) > 0) {
-		int n = sscanf(line, "%s %s", entry, content);
+		/* be careful about buffer overflow */
+		int n = sscanf(line, "%255s %255[^\r\n]", entry, content);
 		if (n == 2) {
 			if (cmp(entry, query)) {
 				lst_ = CONS(CONS(MAKE_STR(entry), MAKE_STR(content)), lst_);
