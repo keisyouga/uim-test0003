@@ -7,3 +7,6 @@ LIBS = $(UIM_DIR)/.libs/libuim.so
 
 libuim-test0003.so: test0003.o
 	$(CC) $(CFLAGS) -shared -o $@ $< $(LIBS)
+
+clean:
+	$(RM) libuim-test0003.so test0003.o
