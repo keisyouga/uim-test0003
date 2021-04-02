@@ -5,6 +5,8 @@ this is [[https://github.com/uim/uim][uim]] module for input japanese text kana 
 
 it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input kanji (by default).
 
+running with uim-fep
+[[./switchtable-1.gif]]
 
 * features
 
