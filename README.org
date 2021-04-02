@@ -1,13 +1,20 @@
 
 * what is this?
 
-this is my study of [[https://github.com/uim/uim][uim]] module, input japanese text kana and kanji.
+this is [[https://github.com/uim/uim][uim]] module for input japanese text kana and kanji.
 
-it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input kanji, and support wildcard "*", "?".
+it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input kanji (by default).
+
+
+* features
+
+- specify multiple keystroke-to-string tables and switch between them.
+- support wildcard (*, ?).
 
 * requirement
 
-- uim (version 1.8.6 or later) header file, libuim.so
+- uim
+- uim header (`libuim-dev' package in debian)
 - gcc
 
 * install
