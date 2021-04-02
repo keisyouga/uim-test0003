@@ -19,22 +19,41 @@ it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input
 
 * install
 
-- compile
-  + build libuim-switchtable.so
-  + gcc, uim header file, libuim.so is required.
-  + run make
+1. at first, build libuim-switchtable.so
 #+BEGIN_EXAMPLE
 $ make
 #+END_EXAMPLE
 
-- copy libuim-switchtable.so, *.scm to ~/.uim.d/plugin/
+2a. install into home directory
+- copy libuim-switchtable.so and *.scm to ~/.uim.d/plugin/
 - copy table file (*.txt) to ~/.uim.d/tables/
-- run following command
+- run following command to register the module
 #+BEGIN_SRC
 $ uim-module-manager --register switchtable --path ~/.uim.d/plugin
 #+END_SRC
 
-* how to use?
+2b. alternatively, install into system directory
+- copy libuim-switchtable.so to the directory displayed by the following command:
+#+BEGIN_SRC
+$ uim-sh -e '(string-append (sys-pkglibdir) "/plugin")'
+#+END_SRC
+in my case, "/usr/lib/x86_64-linux-gnu/uim/plugin"
+- copy *.scm to the directory displayed by the following command:
+#+BEGIN_SRC
+$ uim-sh -e '(sys-pkgdatadir)'
+#+END_SRC
+in my case, "/usr/share/uim"
+- copy table file (*.txt) to the directory displayed by the following command:
+#+BEGIN_SRC
+$ uim-sh -e '(string-append (sys-pkgdatadir) "/tables/")'
+#+END_SRC
+in my case, "/usr/share/uim/tables/"
+- run following command as root to register the module
+#+BEGIN_SRC
+# uim-module-manager --register switchtable
+#+END_SRC
+
+* start program
 
 - start in console
 #+BEGIN_SRC
@@ -46,35 +65,32 @@ $ uim-fep -u switchtable
 $ uim-xim --engine=switchtable
 #+END_SRC
 
-- default key bindings
+* default key bindings
 
-| key        | command                 |
-|------------+-------------------------|
-| space      | commit                  |
-| alt-c      | toggle candidate window |
-| alt-a      | toggle auto commit      |
-| alt-w      | toggle wildcard         |
-| alt-p      | toggle prediction       |
-| alt-1 / f6 | switch to rule1         |
-| alt-2 / f7 | switch to rule2         |
-| alt-3 / f8 | switch to rule3         |
-| alt-4      | switch to rule4         |
-| ...        | ...                     |
-| alt-9      | switch to rule9         |
+| key         | command                 |
+|-------------+-------------------------|
+| space       | commit                  |
+| alt-c       | toggle candidate window |
+| alt-a       | toggle auto commit      |
+| alt-w       | toggle wildcard         |
+| alt-p       | toggle prediction       |
+| alt-1 or f6 | switch to rule1         |
+| alt-2 or f7 | switch to rule2         |
+| alt-3 or f8 | switch to rule3         |
+| alt-4       | switch to rule4         |
+| ...         | ...                     |
+| alt-9       | switch to rule9         |
 
-* config
+* configuration
 
 edit ~/.uim
 
 #+BEGIN_SRC scheme
 ;;; example setting
-;; on/off key
-(define-key switchtable-on-key? '("<Control>\\" "zenkaku-hankaku"))
-(define-key switchtable-off-key? '("<Control>\\" "zenkaku-hankaku"))
-;; bind switch rule1, rul2 to F1, F2
+;; bind switch rule1, rule2 to F1, F2
 (define-key switchtable-switch-rule1-key? "F1")
 (define-key switchtable-switch-rule2-key? "F2")
-;; use hiragana, katakana
+;; specify hiragana, katakana table
 (define switchtable-rule-list
   '(((label . hiragana)
      (autocommit . #f)
@@ -86,9 +102,43 @@ edit ~/.uim
      (prediction . #f)
      (wildcard . #t)
      (tablefile . "tables/katakana.txt"))))
+;; tweak iconic-label which defines in /usr/share/uim/im-switcher.scm 
+(define imsw-iconic-label-alist
+  '((direct           . "-")
+    (ajax-ime         . "Aj")
+    (anthy            . "An")
+    (anthy-utf8       . "An")
+    (byeoru           . "B")
+    (baidu-olime-jp   . "Bj")
+    (canna            . "Ca")
+    (chewing          . "Ch")
+    (elatin           . "E")
+    (hangul2          . "H2")
+    (hangul3          . "H3")
+    (ipa-x-sampa      . "I")
+    (latin            . "Lt")
+    (look             . "Lo")
+    (mana             . "Ma")
+    (mozc             . "Mz")
+    (pinyin-big5      . "Pi")
+    (pyunihan         . "Py")
+    (prime            . "Pm")
+    (romaja           . "R")
+    (sj3              . "Sj")
+    (skk              . "Sk")
+    (tcode            . "Tc")
+    (tutcode          . "Tu")
+    (trycode          . "Tr")
+    (viqr             . "V")
+    (wb86             . "Wb")
+    (wnn              . "Wn")
+    (yahoo-jp         . "Yj")
+    (google-cgiapi-jp . "Gj")
+    (zm               . "Zm")
+    (switchtable      . "Sw")
+    ))
 #+END_SRC
 
 * problems
 
 - unable to assign switchtable-rule-list by uim-pref-*.
-- project name.
