@@ -81,6 +81,6 @@ must call after im-activate-candidate-selector
 * emacs setting
 
 #+BEGIN_SRC emacs-lisp
-(global-set-key [f12] (lambda () (interactive) (shell-command "tmux neww uim-fep -u test0003")))
+(global-set-key [f12] (lambda () (interactive) (shell-command "tmux neww uim-fep -u switchtable")))
 (setq scheme-program-name "uim-sh")
 #+END_SRC

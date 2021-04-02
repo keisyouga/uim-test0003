@@ -13,30 +13,30 @@ it uses [[https://en.wikipedia.org/wiki/Cangjie_input_method][cangjie]] to input
 * install
 
 - compile
-  + build libuim-test0003.so
+  + build libuim-switchtable.so
   + gcc, uim header file, libuim.so is required.
   + run make
 #+BEGIN_EXAMPLE
 $ make
 #+END_EXAMPLE
 
-- copy libuim-test0003.so, *.scm to ~/.uim.d/plugin/
+- copy libuim-switchtable.so, *.scm to ~/.uim.d/plugin/
 - copy table file (*.txt) to ~/.uim.d/tables/
 - run following command
 #+BEGIN_SRC
-$ uim-module-manager --register test0003 --path ~/.uim.d/plugin
+$ uim-module-manager --register switchtable --path ~/.uim.d/plugin
 #+END_SRC
 
 * how to use?
 
 - start in console
 #+BEGIN_SRC
-$ uim-fep -u test0003
+$ uim-fep -u switchtable
 #+END_SRC
 
 - start in x
 #+BEGIN_SRC
-$ uim-xim --engine=test0003
+$ uim-xim --engine=switchtable
 #+END_SRC
 
 - default key bindings
@@ -62,13 +62,13 @@ edit ~/.uim
 #+BEGIN_SRC scheme
 ;;; example setting
 ;; on/off key
-(define-key test0003-on-key? '("<Control>\\" "zenkaku-hankaku"))
-(define-key test0003-off-key? '("<Control>\\" "zenkaku-hankaku"))
+(define-key switchtable-on-key? '("<Control>\\" "zenkaku-hankaku"))
+(define-key switchtable-off-key? '("<Control>\\" "zenkaku-hankaku"))
 ;; bind switch rule1, rul2 to F1, F2
-(define-key test0003-switch-rule1-key? "F1")
-(define-key test0003-switch-rule2-key? "F2")
+(define-key switchtable-switch-rule1-key? "F1")
+(define-key switchtable-switch-rule2-key? "F2")
 ;; use hiragana, katakana
-(define test0003-rule-list
+(define switchtable-rule-list
   '(((label . hiragana)
      (autocommit . #f)
      (prediction . #f)
@@ -83,5 +83,5 @@ edit ~/.uim
 
 * problems
 
-- unable to assign test0003-rule-list by uim-pref-*.
+- unable to assign switchtable-rule-list by uim-pref-*.
 - project name.

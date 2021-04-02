@@ -160,10 +160,10 @@ make_cands_find_prefix(uim_lisp str_, uim_lisp table_)
 void
 uim_plugin_instance_init(void)
 {
-	uim_scm_init_proc2("test0003-lib-make-cands-wildcard-prefix", make_cands_wildcard_prefix);
-	uim_scm_init_proc2("test0003-lib-make-cands-wildcard", make_cands_wildcard);
-	uim_scm_init_proc2("test0003-lib-make-cands-find-prefix", make_cands_find_prefix);
-	uim_scm_init_proc2("test0003-lib-make-cands-find", make_cands_find);
+	uim_scm_init_proc2("switchtable-lib-make-cands-wildcard-prefix", make_cands_wildcard_prefix);
+	uim_scm_init_proc2("switchtable-lib-make-cands-wildcard", make_cands_wildcard);
+	uim_scm_init_proc2("switchtable-lib-make-cands-find-prefix", make_cands_find_prefix);
+	uim_scm_init_proc2("switchtable-lib-make-cands-find", make_cands_find);
 }
 
 void
