@@ -123,13 +123,13 @@
   (N_ "switchtable key bindings")
   (N_ "long description will be here."))
 
-(define-custom 'switchtable-on-key '(generic-on-key)
+(define-custom 'switchtable-on-key '("<Control>\\" generic-on-key)
   '(switchtable switchtable-keys)
   '(key)
   (N_ "[switchtable] on")
   (N_ "long description will be here"))
 
-(define-custom 'switchtable-off-key '(generic-off-key)
+(define-custom 'switchtable-off-key '("<Control>\\" generic-off-key)
   '(switchtable switchtable-keys)
   '(key)
   (N_ "[switchtable] off")
