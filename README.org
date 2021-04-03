@@ -21,7 +21,8 @@ running with uim-fep
 
 * install
 
-** at first, build libuim-switchtable.so
+** build libuim-switchtable.so
+check Makefile to adjust =UIM_DIR= and =LIBS= variable to your environment.
 #+BEGIN_EXAMPLE
 $ make
 #+END_EXAMPLE
@@ -77,6 +78,7 @@ $ uim-xim --engine=switchtable
 
 | key         | command                 |
 |-------------+-------------------------|
+| ctrl-\      | on/off                  |
 | space       | commit                  |
 | alt-c       | toggle candidate window |
 | alt-a       | toggle auto commit      |
