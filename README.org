@@ -21,12 +21,12 @@ running with uim-fep
 
 * install
 
-1. at first, build libuim-switchtable.so
+** at first, build libuim-switchtable.so
 #+BEGIN_EXAMPLE
 $ make
 #+END_EXAMPLE
 
-2a. install into home directory
+** install into home directory
 - copy libuim-switchtable.so and *.scm to ~/.uim.d/plugin/
 - copy table file (*.txt) to ~/.uim.d/tables/
 - run following command to register the module
@@ -34,22 +34,28 @@ $ make
 $ uim-module-manager --register switchtable --path ~/.uim.d/plugin
 #+END_SRC
 
-2b. alternatively, install into system directory
-- copy libuim-switchtable.so to the directory displayed by the following command:
+** alternatively, install into system directory
+- copy libuim-switchtable.so to the plugin directory
+- copy *.scm to the pkgdatadir directory
+- copy table file (*.txt) to the tables directory
+
+these directories is displayed by the following command:
+
 #+BEGIN_SRC
+plugin directory (*.so)
 $ uim-sh -e '(string-append (sys-pkglibdir) "/plugin")'
-#+END_SRC
-in my case, "/usr/lib/x86_64-linux-gnu/uim/plugin"
-- copy *.scm to the directory displayed by the following command:
-#+BEGIN_SRC
+
+pkgdatadir directory (*.scm)
 $ uim-sh -e '(sys-pkgdatadir)'
-#+END_SRC
-in my case, "/usr/share/uim"
-- copy table file (*.txt) to the directory displayed by the following command:
-#+BEGIN_SRC
+
+table directory (*.txt)
 $ uim-sh -e '(string-append (sys-pkgdatadir) "/tables/")'
 #+END_SRC
-in my case, "/usr/share/uim/tables/"
+
+in my case, *.so is placed under ="/usr/lib/x86_64-linux-gnu/uim/plugin"=,
+*.scm is placed under ="/usr/share/uim"=,
+*.txt is placed under ="/usr/share/uim/tables/"=.
+
 - run following command as root to register the module
 #+BEGIN_SRC
 # uim-module-manager --register switchtable
@@ -104,7 +110,7 @@ edit ~/.uim
      (prediction . #f)
      (wildcard . #t)
      (tablefile . "tables/katakana.txt"))))
-;; tweak iconic-label which defines in /usr/share/uim/im-switcher.scm 
+;; tweak iconic-label which defines in /usr/share/uim/im-switcher.scm
 (define imsw-iconic-label-alist
   '((direct           . "-")
     (ajax-ime         . "Aj")
