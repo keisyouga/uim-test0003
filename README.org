@@ -10,7 +10,7 @@ running with uim-fep
 
 * features
 
-- specify multiple keystroke-to-string tables and switch between them.
+- specify multiple keystroke-to-string table files and switch between them.
 - support wildcard (*, ?).
 
 * requirement
@@ -22,7 +22,7 @@ running with uim-fep
 * install
 
 ** build libuim-switchtable.so
-check Makefile to adjust =UIM_DIR= and =LIBS= variable to your environment.
+adjust =UIM_DIR= and =LIBS= in Makefile to your environment, and run
 #+BEGIN_EXAMPLE
 $ make
 #+END_EXAMPLE
@@ -30,7 +30,7 @@ $ make
 ** install into home directory
 - copy libuim-switchtable.so and *.scm to ~/.uim.d/plugin/
 - copy table file (*.txt) to ~/.uim.d/tables/
-- run following command to register the module
+- lastly, run following command to register the module
 #+BEGIN_SRC
 $ uim-module-manager --register switchtable --path ~/.uim.d/plugin
 #+END_SRC
@@ -45,19 +45,24 @@ these directories is displayed by the following command:
 #+BEGIN_SRC
 plugin directory (*.so)
 $ uim-sh -e '(string-append (sys-pkglibdir) "/plugin")'
+"/usr/lib/x86_64-linux-gnu/uim/plugin"
 
 pkgdatadir directory (*.scm)
 $ uim-sh -e '(sys-pkgdatadir)'
+"/usr/share/uim"
 
 table directory (*.txt)
 $ uim-sh -e '(string-append (sys-pkgdatadir) "/tables/")'
+"/usr/share/uim/tables/"
+
 #+END_SRC
 
 in my case, *.so is placed under ="/usr/lib/x86_64-linux-gnu/uim/plugin"=,
 *.scm is placed under ="/usr/share/uim"=,
 *.txt is placed under ="/usr/share/uim/tables/"=.
 
-- run following command as root to register the module
+- lastly, run following command as root to register the module
+
 #+BEGIN_SRC
 # uim-module-manager --register switchtable
 #+END_SRC
